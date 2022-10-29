@@ -1,0 +1,7 @@
+\data Type : \Set0
+  | nat'
+  | list' Type
+  | arr' (t1 t2 : Type)
+
+\data Term
+  | Zero
