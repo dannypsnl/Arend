@@ -26,7 +26,7 @@
       | false => make-tree y a2 (merge h1 b2)
     }
   \where
-    \func make-tree {A : \Set} (x : A) (left : Heap A) (right : Heap A) : Heap A =>
+    \func make-tree {A : \Set} (x : A) (left right : Heap A) : Heap A =>
       \case rank right <= rank left \with {
         | true => T (rank right + 1) x left right
         | false => T (rank left + 1) x right left
