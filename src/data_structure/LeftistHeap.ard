@@ -1,0 +1,49 @@
+\import Algebra.Monoid
+\import Arith.Nat
+\import Data.Bool
+\import Data.Maybe
+
+\class Ord (A : \Set)
+  | \infix 6 <= : A -> A -> Bool
+
+\func Nat<= (x y : Nat) : Bool
+  | 0, n => true
+  | n , 0 => false
+  | suc n, suc m => Nat<= n m
+\instance Nat-Ord : Ord Nat
+  | <= => Nat<=
+
+\data Heap (A : \Set)
+  | E
+  | T Nat A (Heap A) (Heap A)
+
+\func merge {A : \Set} (h1 h2 : Heap A) : Heap A
+  | E, h => h
+  | h, E => h
+  | T _ x a1 b1 \as h1, T _ y a2 b2 \as h2 =>
+    \case x <= y \with {
+      | true => make-tree x a1 (merge b1 h2)
+      | false => make-tree y a2 (merge h1 b2)
+    }
+  \where
+    \func make-tree {A : \Set} (x : A) (left : Heap A) (right : Heap A) : Heap A =>
+      \case rank right <= rank left \with {
+        | true => T (rank right + 1) x left right
+        | false => T (rank left + 1) x right left
+      }
+    \func rank {A : \Set} (h : Heap A) : Nat
+      | E => 0
+      | T r _ _ _ => r
+
+\func insert {A : \Set} (x : A) (h : Heap A) : Heap A => merge (T 1 x E E) h
+
+\func find-min {A : \Set} (h : Heap A) : Maybe A
+  | E => nothing
+  | T _ e _ _ => just e
+\func delete-min {A : \Set} (h : Heap A) : Heap A
+  | E => E
+  | T _ _ l r => merge l r
+
+\func empty? {A : \Set} (h : Heap A) : Bool
+  | E => true
+  | _ => false
