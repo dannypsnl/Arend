@@ -1,0 +1,12 @@
+\import Data.Bool
+
+\class Ord (A : \Set)
+  | \infix 6 <= : A -> A -> Bool
+
+\instance Nat-Ord : Ord Nat
+  | <= => Nat<=
+  \where
+    \func Nat<= (x y : Nat) : Bool
+      | 0, n => true
+      | n , 0 => false
+      | suc n, suc m => Nat<= n m
