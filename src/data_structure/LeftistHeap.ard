@@ -1,6 +1,7 @@
 \import Algebra.Monoid
 \import Arith.Nat
 \import Data.Bool
+\import Data.List
 \import Data.Maybe
 
 \class Ord (A : \Set)
@@ -36,6 +37,9 @@
       | T r _ _ _ => r
 
 \func insert {A : Ord} (x : A) (h : Heap A) : Heap A => merge (T 1 x E E) h
+\func from-list {A : Ord} (xs : List A) : Heap A
+  | nil => E
+  | :: x xs => insert x (from-list xs)
 
 \func find-min {A : \Set} (h : Heap A) : Maybe A
   | E => nothing
