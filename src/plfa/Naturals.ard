@@ -1,6 +1,6 @@
 \import Paths
 
-\func \infix 6 + : \Pi (n m : Nat) -> Nat => Nat.+
+\func \infix 6 + => Nat.+
 
 \func proof_triv : (2 + 3) = 5 => idp
 
