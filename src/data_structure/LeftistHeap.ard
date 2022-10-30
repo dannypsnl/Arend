@@ -17,7 +17,7 @@
   | E
   | T Nat A (Heap A) (Heap A)
 
-\func merge {A : \Set} (h1 h2 : Heap A) : Heap A
+\func merge {A : Ord} (h1 h2 : Heap A) : Heap A
   | E, h => h
   | h, E => h
   | T _ x a1 b1 \as h1, T _ y a2 b2 \as h2 =>
@@ -35,12 +35,12 @@
       | E => 0
       | T r _ _ _ => r
 
-\func insert {A : \Set} (x : A) (h : Heap A) : Heap A => merge (T 1 x E E) h
+\func insert {A : Ord} (x : A) (h : Heap A) : Heap A => merge (T 1 x E E) h
 
 \func find-min {A : \Set} (h : Heap A) : Maybe A
   | E => nothing
   | T _ e _ _ => just e
-\func delete-min {A : \Set} (h : Heap A) : Heap A
+\func delete-min {A : Ord} (h : Heap A) : Heap A
   | E => E
   | T _ _ l r => merge l r
 
