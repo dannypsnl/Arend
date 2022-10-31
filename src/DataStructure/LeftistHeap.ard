@@ -8,6 +8,10 @@
 \data Heap (A : \Set)
   | E
   | T Nat A (Heap A) (Heap A)
+  \where
+    \use \coerce from-list {A : Ord} (xs : List A) : Heap A
+      | nil => E
+      | :: x xs => insert x (from-list xs)
 
 \func merge {A : Ord} (h1 h2 : Heap A) : Heap A
   | E, h => h
@@ -28,9 +32,6 @@
       | T r _ _ _ => r
 
 \func insert {A : Ord} (x : A) (h : Heap A) : Heap A => merge (T 1 x E E) h
-\func from-list {A : Ord} (xs : List A) : Heap A
-  | nil => E
-  | :: x xs => insert x (from-list xs)
 
 \func find-min {A : \Set} (h : Heap A) : Maybe A
   | E => nothing
