@@ -30,7 +30,7 @@
 \data LayeredData (T : \Set) (us : Units)
   | Box T
 
-\func merge-units (us1 us2 : Units) : Units => fold insert us2 us1
+\func unit:* (us1 us2 : Units) : Units => fold insert us2 us1
   \where
     \func insert (u : Unit) (us : Units) : Units
       | u, :: x xs => \case unit=? u x \with {
@@ -39,13 +39,16 @@
       }
       | u, nil => u :: nil
 
-\func \infix 6 unit:* {us1 us2 : Units} (a : LayeredData Int us1) (b : LayeredData Int us2)
-  : LayeredData Int (merge-units us1 us2)
+\func \infix 6 v-+ {us : Units} (a b : LayeredData Int us) : LayeredData Int us
+  | Box v1, Box v2 => Box (v1 + v2)
+\func \infix 6 v-* {us1 us2 : Units} (a : LayeredData Int us1) (b : LayeredData Int us2)
+  : LayeredData Int (unit:* us1 us2)
   | Box v1, Box v2 => Box (v1 IntRing.* v2)
 
 \func G : LayeredData Int (Meter 3 :: Kilogram -1 :: Second -2 :: nil) => Box 7
 \func S : LayeredData Int (Second 1 :: nil) => Box 2
-\func test
-  : LayeredData Int (merge-units (Meter 3 :: Kilogram -1 :: Second -2 :: nil)
+\func test-*
+  : LayeredData Int (unit:* (Meter 3 :: Kilogram -1 :: Second -2 :: nil)
                                  (Second 1 :: nil))
-  => G unit:* S
+  => G v-* S
+\func test-+ => S v-+ S
