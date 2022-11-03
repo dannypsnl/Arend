@@ -1,0 +1,51 @@
+\import Arith.Int
+\import Data.Bool
+\import Data.List
+\open IntRing (+)
+
+\func fold {A B : \Type} (f : A -> B -> B) (b : B) (l : List A) : B \elim l
+  | nil => b
+  | :: a l => f a (fold f b l)
+
+\data Unit
+  | Meter Int
+  | Kilogram Int
+  | Second Int
+\func unit=? (u1 u2 : Unit) : Bool
+  | Meter _, Meter _ => true
+  | Kilogram _, Kilogram _ => true
+  | Second _, Second _ => true
+  | _, _ => false
+\func fuse (u1 u2 : Unit) : Unit
+  | Meter l, Meter r => Meter (l + r)
+  | Kilogram l, Kilogram r => Kilogram (l + r)
+  | Second l, Second r => Second (l + r)
+  --  should not happened
+  | u, _ => u
+\func test-fuse1 : fuse (Meter -1) (Meter -2) = Meter -3 => idp
+\func test-fuse2 : fuse (Meter -1) (Meter 2) = Meter 1 => idp
+
+\type Units => List Unit
+
+\data LayeredData (T : \Set) (us : Units)
+  | Box T
+
+\func merge-units (us1 us2 : Units) : Units => fold insert us2 us1
+  \where
+    \func insert (u : Unit) (us : Units) : Units
+      | u, :: x xs => \case unit=? u x \with {
+        | true => fuse u x :: xs
+        | false => x :: insert u xs
+      }
+      | u, nil => u :: nil
+
+\func \infix 6 unit:* {us1 us2 : Units} (a : LayeredData Int us1) (b : LayeredData Int us2)
+  : LayeredData Int (merge-units us1 us2)
+  | Box v1, Box v2 => Box (v1 IntRing.* v2)
+
+\func G : LayeredData Int (Meter 3 :: Kilogram -1 :: Second -2 :: nil) => Box 7
+\func S : LayeredData Int (Second 1 :: nil) => Box 2
+\func test
+  : LayeredData Int (merge-units (Meter 3 :: Kilogram -1 :: Second -2 :: nil)
+                                 (Second 1 :: nil))
+  => G unit:* S
