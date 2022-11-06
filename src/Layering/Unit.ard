@@ -3,10 +3,6 @@
 \import Data.List
 \open IntRing (+, *)
 
-\func fold {A B : \Type} (f : A -> B -> B) (b : B) (l : List A) : B
-  | _, b, nil => b
-  | f, b, :: a l => f a (fold f b l)
-
 \data Pair (A B : \Set)
   | \infix 7 X A B
 
@@ -21,6 +17,9 @@
   | _, _ => false
 
 \type Units => List (Pair Unit Int)
+\func fold (f : (Pair Unit Int) -> Units -> Units) (b : Units) (l : Units) : Units
+  | _, b, nil => b
+  | f, b, :: a l => f a (fold f b l)
 
 \data LayeredData (T : \Set) Units
   | Box T
@@ -40,14 +39,15 @@
   : LayeredData Int (unit-* us1 us2)
   | Box v1, Box v2 => Box (v1 * v2)
 
-\func G : LayeredData Int ((Meter X 3) :: (Kilogram X -1) :: (Second X -2) :: nil) => Box 7
-\func S : LayeredData Int ((Second X 1) :: nil) => Box 2
-\func test-*
-  : LayeredData Int (unit-* ((Meter X 3) :: (Kilogram X -1) :: (Second X -2) :: nil)
-                                 ((Second X 1) :: nil))
+\func test-*-1 : LayeredData Int ((Meter X 3) :: (Kilogram X -1) :: (Second X -1) :: nil)
   => G v-* S
+  \where
+    \func G : LayeredData Int ((Meter X 3) :: (Kilogram X -1) :: (Second X -2) :: nil) => Box 7
+    \func S : LayeredData Int ((Second X 1) :: nil) => Box 2
+
 \func test-*-2 (g : LayeredData Int ((Meter X 3) :: (Kilogram X -1) :: (Second X -2) :: nil))
-               (s : LayeredData Int ((Second X 1) :: nil))
+             (s : LayeredData Int ((Second X 1) :: nil))
   : LayeredData Int ((Meter X 3) :: (Kilogram X -1) :: (Second X -1) :: nil)
   | g, s => g v-* s
+
 \func test-+ => S v-+ S
