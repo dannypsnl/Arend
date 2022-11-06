@@ -1,0 +1,34 @@
+\import Data.Bool
+\import Data.List
+\import Data.Maybe
+
+\data Ty
+  | Num
+  | Arrow Ty Ty
+
+\data Term
+  | Var Nat
+  | Lam Nat Ty Term
+  | App Term Term
+
+\type Context => List Ty
+
+\func lookup (ctx : Context) (var : Nat) : Maybe Ty
+  | nil, v => nothing
+  | :: x xs, 0 => just x
+  | :: x xs, suc n => lookup xs n
+\func insert (ctx : Context) (t : Ty) : Context => t :: ctx
+
+\func \infix 6 ty=? (n m : Ty) : Bool
+  | Num, Num => true
+  | Arrow la lb, Arrow ra rb => la ty=? ra and lb ty=? rb
+  | _, _ => false
+
+-- return true is ok, false for error
+\func check (ctx : Context) (t : Term) (ty : Ty) : Bool \elim t, ty
+  | Var n, ty => \case lookup ctx n \with {
+    | nothing => false
+    | just rty => ty ty=? rty
+  }
+  | Lam v vty body, Arrow _ ty => check (insert ctx vty) body ty
+  | _, _ => false
