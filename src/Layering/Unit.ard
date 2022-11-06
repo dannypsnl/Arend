@@ -1,54 +1,53 @@
 \import Arith.Int
 \import Data.Bool
 \import Data.List
-\open IntRing (+)
+\open IntRing (+, *)
 
-\func fold {A B : \Type} (f : A -> B -> B) (b : B) (l : List A) : B \elim l
-  | nil => b
-  | :: a l => f a (fold f b l)
+\func fold {A B : \Type} (f : A -> B -> B) (b : B) (l : List A) : B
+  | _, b, nil => b
+  | f, b, :: a l => f a (fold f b l)
+
+\data Pair (A B : \Set)
+  | \infix 7 X A B
 
 \data Unit
-  | Meter Int
-  | Kilogram Int
-  | Second Int
+  | Meter
+  | Kilogram
+  | Second
 \func unit=? (u1 u2 : Unit) : Bool
-  | Meter _, Meter _ => true
-  | Kilogram _, Kilogram _ => true
-  | Second _, Second _ => true
+  | Meter, Meter => true
+  | Kilogram, Kilogram => true
+  | Second, Second => true
   | _, _ => false
-\func fuse (u1 u2 : Unit) : Unit
-  | Meter l, Meter r => Meter (l + r)
-  | Kilogram l, Kilogram r => Kilogram (l + r)
-  | Second l, Second r => Second (l + r)
-  --  should not happened
-  | u, _ => u
-\func test-fuse1 : fuse (Meter -1) (Meter -2) = Meter -3 => idp
-\func test-fuse2 : fuse (Meter -1) (Meter 2) = Meter 1 => idp
 
-\type Units => List Unit
+\type Units => List (Pair Unit Int)
 
-\data LayeredData (T : \Set) (us : Units)
+\data LayeredData (T : \Set) Units
   | Box T
 
-\func unit:* (us1 us2 : Units) : Units => fold insert us2 us1
+\func unit-* (us1 us2 : Units) : Units => fold insert us2 us1
   \where
-    \func insert (u : Unit) (us : Units) : Units
-      | u, :: x xs => \case unit=? u x \with {
-        | true => fuse u x :: xs
-        | false => x :: insert u xs
+    \func insert (u : Pair Unit Int) (us : Units) : Units
+      | (X u u-val), :: (X v v-val) xs => \case unit=? u v \with {
+        | true => (u X (u-val + v-val)) :: xs
+        | false => (v X v-val) :: insert (u X u-val) xs
       }
       | u, nil => u :: nil
 
 \func \infix 6 v-+ {us : Units} (a b : LayeredData Int us) : LayeredData Int us
   | Box v1, Box v2 => Box (v1 + v2)
 \func \infix 6 v-* {us1 us2 : Units} (a : LayeredData Int us1) (b : LayeredData Int us2)
-  : LayeredData Int (unit:* us1 us2)
-  | Box v1, Box v2 => Box (v1 IntRing.* v2)
+  : LayeredData Int (unit-* us1 us2)
+  | Box v1, Box v2 => Box (v1 * v2)
 
-\func G : LayeredData Int (Meter 3 :: Kilogram -1 :: Second -2 :: nil) => Box 7
-\func S : LayeredData Int (Second 1 :: nil) => Box 2
+\func G : LayeredData Int ((Meter X 3) :: (Kilogram X -1) :: (Second X -2) :: nil) => Box 7
+\func S : LayeredData Int ((Second X 1) :: nil) => Box 2
 \func test-*
-  : LayeredData Int (unit:* (Meter 3 :: Kilogram -1 :: Second -2 :: nil)
-                                 (Second 1 :: nil))
+  : LayeredData Int (unit-* ((Meter X 3) :: (Kilogram X -1) :: (Second X -2) :: nil)
+                                 ((Second X 1) :: nil))
   => G v-* S
+\func test-*-2 (g : LayeredData Int ((Meter X 3) :: (Kilogram X -1) :: (Second X -2) :: nil))
+               (s : LayeredData Int ((Second X 1) :: nil))
+  : LayeredData Int ((Meter X 3) :: (Kilogram X -1) :: (Second X -1) :: nil)
+  | g, s => g v-* s
 \func test-+ => S v-+ S
