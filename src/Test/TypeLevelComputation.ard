@@ -1,0 +1,17 @@
+\import Data.List
+
+\data A Nat
+  | E
+\func t+ {n m : Nat} (x : A n) (y : A m) : A (n Nat.+ m)
+  | E, E => E
+
+\func test (a : A 1) (b : A 2) : A 3
+  | a, b => t+ a b
+
+\data B (List Nat)
+  | L
+\func t-cons {la lb : List Nat} (x : B la) (y : B lb) : B (la ++ lb)
+  | L, L => L
+
+\func test-2 (a : B (2 :: nil)) (b : B (1 :: nil)) : B (2 :: 1 :: nil)
+  | a, b => t-cons a b
