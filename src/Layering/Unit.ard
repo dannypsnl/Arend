@@ -40,14 +40,16 @@
   | Box v1, Box v2 => Box (v1 * v2)
 
 \func test-*-1 : LayeredData Int ((Meter X 3) :: (Kilogram X -1) :: (Second X -1) :: nil)
-  => G v-* S
+  => g v-* s
   \where
-    \func G : LayeredData Int ((Meter X 3) :: (Kilogram X -1) :: (Second X -2) :: nil) => Box 7
-    \func S : LayeredData Int ((Second X 1) :: nil) => Box 2
+    \func g : LayeredData Int ((Meter X 3) :: (Kilogram X -1) :: (Second X -2) :: nil) => Box 7
+    \func s : LayeredData Int ((Second X 1) :: nil) => Box 2
 
 \func test-*-2 (g : LayeredData Int ((Meter X 3) :: (Kilogram X -1) :: (Second X -2) :: nil))
              (s : LayeredData Int ((Second X 1) :: nil))
   : LayeredData Int ((Meter X 3) :: (Kilogram X -1) :: (Second X -1) :: nil)
   | g, s => g v-* s
 
-\func test-+ => S v-+ S
+\func test-+ => s v-+ s
+  \where
+    \func s : LayeredData Int ((Second X 1) :: nil) => Box 3
