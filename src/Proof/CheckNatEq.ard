@@ -1,0 +1,13 @@
+\import Algebra.Meta
+\import Set
+
+\func check-equal-nat (a b : Nat) : Dec (a = b)
+  | 0, 0 => yes idp
+  | 0, suc _ => no {?zero-not-suc}
+  | suc _, 0 => no {?suc-not-zero}
+  | suc a', suc b' => \case check-equal-nat a' b' \with {
+    | yes p => yes (cong p)
+    | no contra => no {?no-rec}
+  }
+
+\func test => check-equal-nat 1 2
