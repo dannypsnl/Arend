@@ -1,0 +1,31 @@
+\import Algebra.Monoid
+\import Arith.Nat
+\import Data.Bool
+\import Data.List
+\import DataStructure.Common.Ord
+
+\type Heap (A : \Set) => List (Tree A)
+\data Tree (A : \Set)
+  --  rank, elem, subtree list
+  | Node Nat A (List (Tree A))
+
+\func link {A : Ord} (t1 t2 : Tree A) : Tree A
+  | (Node r x1 c1) \as t1, (Node _ x2 c2) \as t2 =>
+    if (x1 <= x2)
+      (Node (r + 1) x1 (t2 :: c1))
+      (Node (r + 1) x2 (t1 :: c2))
+
+\func rank {A : Ord} (t : Tree A) : Nat
+  | (Node r _ _) => r
+
+\func insert-tree {A : Ord} (t : Tree A) (h : Heap A) : Heap A
+  | t, nil => t :: nil
+  | t, :: t' ts' \as ts =>
+    if (rank t <= rank t')
+      (t :: ts)
+      (insert-tree (link t t') ts')
+\func insert {A : Ord} (x : A) (h : Heap A) : Heap A => insert-tree (Node 0 x nil) h
+
+\func merge {A : Ord} (h1 h2 : Heap A) : Heap A
+  | nil, ts => ts
+  | :: t1 ts1' \as ts1, :: t2 ts2' \as ts2 => {?}
