@@ -3,43 +3,44 @@
 \import Data.Bool
 \import Data.List
 \import Data.Maybe
-\import DataStructure.Common.Ord
+\import Order.LinearOrder
+\open LinearOrder
 
-\data Heap (A : \Set)
+\data Heap (A : Dec)
   | E
   | T Nat A (Heap A) (Heap A)
   \where
-    \use \coerce from-list {A : Ord} (xs : List A) : Heap A
+    \use \coerce from-list {A : Dec} (xs : List A) : Heap A
       | nil => E
       | :: x xs => insert x (from-list xs)
 
-\func merge {A : Ord} (h1 h2 : Heap A) : Heap A
+\func merge {A : Dec} (h1 h2 : Heap A) : Heap A
   | E, h => h
   | h, E => h
   | T _ x a1 b1 \as h1, T _ y a2 b2 \as h2 =>
-    \case x <= y \with {
-      | true => make-tree x a1 (merge b1 h2)
-      | false => make-tree y a2 (merge h1 b2)
+    \case trichotomy x y \with {
+      | greater _ => make-tree y a2 (merge h1 b2)
+      | _ => make-tree x a1 (merge b1 h2)
     }
   \where
-    \func make-tree {A : \Set} (x : A) (left right : Heap A) : Heap A =>
-      \case rank right <= rank left \with {
-        | true => T (rank right + 1) x left right
-        | false => T (rank left + 1) x right left
+    \func make-tree {A : Dec} (x : A) (left right : Heap A) : Heap A =>
+      \case trichotomy (rank right) (rank left) \with {
+        | greater _ => T (rank left + 1) x right left
+        | _ => T (rank right + 1) x left right
       }
-    \func rank {A : \Set} (h : Heap A) : Nat
+    \func rank {A : Dec} (h : Heap A) : Nat
       | E => 0
       | T r _ _ _ => r
 
-\func insert {A : Ord} (x : A) (h : Heap A) : Heap A => merge (T 1 x E E) h
+\func insert {A : Dec} (x : A) (h : Heap A) : Heap A => merge (T 1 x E E) h
 
-\func find-min {A : \Set} (h : Heap A) : Maybe A
+\func find-min {A : Dec} (h : Heap A) : Maybe A
   | E => nothing
   | T _ e _ _ => just e
-\func delete-min {A : Ord} (h : Heap A) : Heap A
+\func delete-min {A : Dec} (h : Heap A) : Heap A
   | E => E
   | T _ _ l r => merge l r
 
-\func empty? {A : \Set} (h : Heap A) : Bool
+\func empty? {A : Dec} (h : Heap A) : Bool
   | E => true
   | _ => false
