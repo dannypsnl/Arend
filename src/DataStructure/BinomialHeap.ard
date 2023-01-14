@@ -2,30 +2,70 @@
 \import Arith.Nat
 \import Data.Bool
 \import Data.List
-\import DataStructure.Common.Ord
+\import Order.LinearOrder
+\open LinearOrder
+
+\data Either (L : \Type) (R : \Type) | left L | right R
+\func TreeError : \Type => Int
+
+\func reverse {A : Dec} (x : List A) : List A
+  | nil => nil
+  | x :: xs => reverse xs ++ x :: nil
+\func \infixl 6 < {A : Dec} (x y : A) : Bool =>
+  \case trichotomy x y \with {
+    | less _x => true
+    | equals p => false
+    | greater _x => false
+  }
+\func \infixl 6 <= {A : Dec} (x y : A) : Bool =>
+  \case trichotomy x y \with {
+    | less _x => true
+    | equals p => true
+    | greater _x => false
+  }
 
 \type Heap (A : \Set) => List (Tree A)
 \data Tree (A : \Set)
   --  rank, elem, subtree list
   | Node Nat A (List (Tree A))
 
-\func link {A : Ord} (t1 t2 : Tree A) : Tree A
-  | (Node r x1 c1) \as t1, (Node _ x2 c2) \as t2 =>
-    if (x1 <= x2)
-      (Node (r + 1) x1 (t2 :: c1))
-      (Node (r + 1) x2 (t1 :: c2))
-
-\func rank {A : Ord} (t : Tree A) : Nat
+\func rank {A : Dec} (t : Tree A) : Nat
   | (Node r _ _) => r
+\func root {A : Dec} (t : Tree A) : A
+  | (Node _ x _) = x
 
-\func insert-tree {A : Ord} (t : Tree A) (h : Heap A) : Heap A
+\func link {A : Dec} (t1 t2 : Tree A) : Tree A
+  | (Node r x1 c1) \as t1, (Node _ x2 c2) \as t2 =>
+    \case x1 <= x2 \with {
+      | true => Node (r + 1) x1 (t2 :: c1)
+      | false => Node (r + 1) x2 (t1 :: c2)
+    }
+
+\func insert-tree {A : Dec} (t : Tree A) (h : Heap A) : Heap A
   | t, nil => t :: nil
-  | t, :: t' ts' \as ts =>
-    if (rank t <= rank t')
-      (t :: ts)
-      (insert-tree (link t t') ts')
-\func insert {A : Ord} (x : A) (h : Heap A) : Heap A => insert-tree (Node 0 x nil) h
+  | t, :: t' ts' \as ts => if (rank t < rank t') (t :: ts) (insert-tree (link t t') ts')
 
-\func merge {A : Ord} (h1 h2 : Heap A) : Heap A
+\func insert {A : Dec} (x : A) (h : Heap A) : Heap A => insert-tree (Node 0 x nil) h
+
+\func merge {A : Dec} (h1 h2 : Heap A) : Heap A
   | nil, ts => ts
-  | :: t1 ts1' \as ts1, :: t2 ts2' \as ts2 => {?}
+  | ts, nil => ts
+  | t1 :: ts1' \as ts1, t2 :: ts2' \as ts2 =>
+    \case trichotomy (rank t1) (rank t2) \with {
+      | less _ => t1 :: merge ts1' ts2
+      | greater _ => t2 :: merge ts1 ts2'
+      | equals _ => insert-tree (link t1 t2) (merge ts1' ts2')
+    }
+
+\func remove-min-tree {A : Dec} (h : Heap A) : Either TreeError (\Sigma (_ : Tree A) (Heap A))
+  | nil => left 0
+  | t :: nil => right (t, nil)
+  | t :: ts => \let (t', ts') => remove-min-tree ts \in
+    right (if (root t <= root t') (t, ts) (t', t :: ts'))
+
+\func find-min {A : Dec} (h : Heap A) : Either TreeError A =>
+  \let (right (t, _)) => remove-min-tree h \in root t
+
+\func delete-min {A : Dec} (ts : Heap A) : Heap A =>
+  \let (Node _ x ts1 :: ts2) => remove-min-tree ts \in
+  merge (reverse ts1) ts2
