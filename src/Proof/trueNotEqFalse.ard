@@ -1,0 +1,10 @@
+\import Data.Bool
+\import Logic
+\import Paths
+
+\func T (b : Bool) : \Type
+  | true => \Sigma
+  | false => Empty
+
+\func true/=false (p : true = false) : Empty =>
+  transport T p ()
