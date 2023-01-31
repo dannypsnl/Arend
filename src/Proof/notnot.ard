@@ -1,0 +1,5 @@
+\import Data.Bool
+
+\func not-not (x : Bool) : not (not x) = x
+  | true => idp
+  | false => idp
