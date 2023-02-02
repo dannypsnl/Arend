@@ -1,0 +1,9 @@
+\import PropositionalLogic.Formula
+\open Nat
+
+\func degree (f : Formula) : Nat
+  | Proposition _ => 0
+  | Negated a => 1 + degree a
+  | Conjunction a b => 1 + degree a + degree b
+  | Disjunction a b => 1 + degree a + degree b
+  | Cond a b => 1 + degree a + degree b

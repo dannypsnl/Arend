@@ -1,0 +1,12 @@
+\data Formula
+  -- like p0, p1, p2
+  | Proposition Nat
+  -- not A
+  | Negated Formula
+  -- A and B
+  | Conjunction Formula Formula
+  -- A or B
+  | Disjunction Formula Formula
+  -- conditional
+  -- A -> B
+  | Cond Formula Formula
