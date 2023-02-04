@@ -1,0 +1,4 @@
+\func k {a b : \Type} (x : a) (y : b) => x
+\func s {a b c : \Type} (x : a -> b -> c) (y : a -> b) (z : a) : c =>
+  x z (y z)
+\func i {a : \Type} (x : a) => x
