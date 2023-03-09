@@ -1,0 +1,21 @@
+\func inverse {A : \Type} {x y : A} (p : x = y) : y = x
+  | idp => idp
+
+\func concat {A : \Type} {x y z : A} (p : x = y) (q : y = z) : x = z
+  | idp, idp => idp
+
+\func inv-inv-p=p {A : \Type} {x y : A} (p : x = y) : p = inverse (inverse p)
+  | idp => idp
+
+\func assoc-concat {A : \Type} {x y z w : A} (p : x = y) (q : y = z) (r : z = w) : concat p (concat q r) = concat (concat p q) r
+  | idp, idp, idp => idp
+
+\func p~id=p {A : \Type} {a b : A} (p : a = b) : concat p idp = p
+  | idp => idp
+\func id~p=p {A : \Type} {a b : A} (p : a = b) : concat idp p = p
+  | idp => idp
+
+\func p~p-1=id {A : \Type} {a b : A} (p : a = b) : concat p (inverse p) = idp
+  | idp => idp
+\func p-1~p=id {A : \Type} {a b : A} (p : a = b) : concat (inverse p) p = idp
+  | idp => idp
