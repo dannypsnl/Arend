@@ -1,21 +1,29 @@
+\import Paths
+
+-- same as Paths inv
 \func inverse {A : \Type} {x y : A} (p : x = y) : y = x
   | idp => idp
-
+-- same as Paths *>
 \func concat {A : \Type} {x y z : A} (p : x = y) (q : y = z) : x = z
   | idp, idp => idp
 
-\func inv-inv-p=p {A : \Type} {x y : A} (p : x = y) : p = inverse (inverse p)
+\func inv-inv-p=p {A : \Type} {x y : A} (p : x = y) : p = inv (inv p)
   | idp => idp
 
-\func assoc-concat {A : \Type} {x y z w : A} (p : x = y) (q : y = z) (r : z = w) : concat p (concat q r) = concat (concat p q) r
+\func assoc-concat {A : \Type} {x y z w : A} (p : x = y) (q : y = z) (r : z = w) : p *> (q *> r) = (p *> q) *> r
   | idp, idp, idp => idp
 
-\func p~id=p {A : \Type} {a b : A} (p : a = b) : concat p idp = p
+\func p~id=p {A : \Type} {a b : A} (p : a = b) : p *> idp = p
   | idp => idp
-\func id~p=p {A : \Type} {a b : A} (p : a = b) : concat idp p = p
+\func id~p=p {A : \Type} {a b : A} (p : a = b) : idp *> p = p
   | idp => idp
 
-\func p~p-1=id {A : \Type} {a b : A} (p : a = b) : concat p (inverse p) = idp
+\func p~p-1=id {A : \Type} {a b : A} (p : a = b) : p *> inv p = idp
   | idp => idp
-\func p-1~p=id {A : \Type} {a b : A} (p : a = b) : concat (inverse p) p = idp
+\func p-1~p=id {A : \Type} {a b : A} (p : a = b) : inv p *> p = idp
   | idp => idp
+
+\func L {A : \Type} (a : A) : \Type => a = a
+\func L2 {A : \Type} (a : A) : \Type => (a = a) = (a = a)
+\func f {A : \Type} {a : A} (alpha beta : L2 a) : L2 a
+  | idp, idp => idp
